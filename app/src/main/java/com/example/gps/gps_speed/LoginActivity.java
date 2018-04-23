@@ -7,13 +7,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
 
+/**
+ * Login activity has a simple layout with 2 edit text fields and a button
+ * that handles the inputs "username" and "password" then connects to database
+ * to check if the inputs correspond to an account
+ */
 public class LoginActivity extends AppCompatActivity {
 
     EditText UsernameEt, PasswordEt;
-    private int UserID;
+    private String userName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //Checks for Location and Internet access permission and asks for it if it was not granted
+        //Checks for Location access permission and asks for it if it was not granted
         PermissionRequest permReq = new PermissionRequest(this);
         permReq.locPermissionCheck();
 
@@ -22,9 +28,14 @@ public class LoginActivity extends AppCompatActivity {
         UsernameEt = findViewById(R.id.usernameTxtField);
         PasswordEt = findViewById(R.id.passwordField);
 
+        //If it finds an UserID saved in shared preferences, that means there is also an username
+        //so it takes the username, and
         SharedPreferences pref = this.getSharedPreferences("Login_Preference", MODE_PRIVATE);
-        UserID=pref.getInt("UserID", 0);                // get UserID of the user that logged in as an Integer
-        if (UserID > 0) {
+        userName = pref.getString("UserName", null);                // get userName of the user that logged in, as a String
+        //If the username found is not null, it just goes directly to the MainActivity
+        //so no more user details required (user has to log out to delete the information
+        //from shared preferences
+        if (userName != null) {
             this.startActivity(new Intent(this, MainActivity.class));
             finish();
         }

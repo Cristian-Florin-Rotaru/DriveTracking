@@ -8,6 +8,11 @@ import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
+/**
+ * A simple class that holds the locPermissionRequest method, that simply checks
+ * if the app already has Permission to access location, if the app does not have permissions granted,
+ * it asks for them
+ */
 public class PermissionRequest {
     Context context;
 

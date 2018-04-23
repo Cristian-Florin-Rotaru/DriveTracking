@@ -16,7 +16,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
-
+/**
+ * Works in background, it sends into database the information about harsh brakes
+ * or aggressive accelerations.
+ * Connects to database using AggroBrakeLog.php and AggroAccelLog.php located on
+ * https://speedtracker.000webhostapp.com/ (Used free web hosting service)
+ */
 public class HarshLogAsync  extends AsyncTask<String,Void,String> {
     Context context;
     String action;
@@ -26,52 +31,58 @@ public class HarshLogAsync  extends AsyncTask<String,Void,String> {
         this.context = ctx;
     }
 
+    /**
+     * @param params holds the information required to be sent to database
+     *               (type, userID, latitude, longitude) where type is used to
+     *               select what incident has to be logged (either acceleration or brake)
+     * @return the result (yes/no) from the php script
+     */
     @Override
     protected String doInBackground(String... params) {
         String type = params[0];
 
         String logUrl = "https://speedtracker.000webhostapp.com/AggroBrakeLog.php";
         action = "Brake";
-        if (type.equals("a")) {
+        if (type.contains("accel")) {
             logUrl = "https://speedtracker.000webhostapp.com/AggroAccelLog.php";
             action = "Acceleration";
-    }
+        }
 
 
-            try {
-                String userID = params[1];
-                String latitude = params[2];
-                String longitude = params[3];
-                URL url = new URL(logUrl);
-                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-                httpURLConnection.setRequestMethod("POST");
-                httpURLConnection.setDoOutput(true);
-                httpURLConnection.setDoInput(true);
-                OutputStream outputStream = httpURLConnection.getOutputStream();
-                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
-                String post_data = URLEncoder.encode("user", "UTF-8") + "=" + URLEncoder.encode(userID, "UTF-8") + "&"
-                        + URLEncoder.encode("lat", "UTF-8") + "=" + URLEncoder.encode(latitude, "UTF-8") + "&"
-                        + URLEncoder.encode("long", "UTF-8") + "=" + URLEncoder.encode(longitude, "UTF-8");
-                bufferedWriter.write(post_data);
-                bufferedWriter.flush();
-                bufferedWriter.close();
-                outputStream.close();
-                InputStream inputStream = httpURLConnection.getInputStream();
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "iso-8859-1"));
-                String result = "";
-                String line = "";
-                while ((line = bufferedReader.readLine()) != null) {
-                    result += line;
-                }
-                bufferedReader.close();
-                inputStream.close();
-                httpURLConnection.disconnect();
-                return result;
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+        try {
+            String userID = params[1];
+            String latitude = params[2];
+            String longitude = params[3];
+            URL url = new URL(logUrl);
+            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setDoOutput(true);
+            httpURLConnection.setDoInput(true);
+            OutputStream outputStream = httpURLConnection.getOutputStream();
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+            String post_data = URLEncoder.encode("user", "UTF-8") + "=" + URLEncoder.encode(userID, "UTF-8") + "&"
+                    + URLEncoder.encode("lat", "UTF-8") + "=" + URLEncoder.encode(latitude, "UTF-8") + "&"
+                    + URLEncoder.encode("long", "UTF-8") + "=" + URLEncoder.encode(longitude, "UTF-8");
+            bufferedWriter.write(post_data);
+            bufferedWriter.flush();
+            bufferedWriter.close();
+            outputStream.close();
+            InputStream inputStream = httpURLConnection.getInputStream();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "iso-8859-1"));
+            String result = "";
+            String line = "";
+            while ((line = bufferedReader.readLine()) != null) {
+                result += line;
             }
+            bufferedReader.close();
+            inputStream.close();
+            httpURLConnection.disconnect();
+            return result;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return null;
     }

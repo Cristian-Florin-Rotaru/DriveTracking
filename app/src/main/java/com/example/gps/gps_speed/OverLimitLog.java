@@ -16,7 +16,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
-
+/**
+ * Works in background, it sends into database the information about going over
+ * the speed limit
+ * Connects to database using SpeedLimitLog.php located on
+ * https://speedtracker.000webhostapp.com/ (Used free web hosting service)
+ */
 public class OverLimitLog extends AsyncTask<String, Void, String> {
     Context context;
     String action;
@@ -26,6 +31,11 @@ public class OverLimitLog extends AsyncTask<String, Void, String> {
         this.context = ctx;
     }
 
+    /**
+     * @param params holds the information required to be sent to database (userID, speed, speedLimit,
+     *               latitude, longitude)
+     * @return the result (yes/no) from the php script
+     */
     @Override
     protected String doInBackground(String... params) {
         String userID = params[0];

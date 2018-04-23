@@ -14,7 +14,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-
+/**
+ * Did not manage to successfully implement this class, it was a try to replace the Google Roads api
+ * which is not free to use
+ */
 public class RequestSpeedLimit extends AsyncTask<String, Void, String> {
     Context context;
     String action;
@@ -32,6 +35,9 @@ public class RequestSpeedLimit extends AsyncTask<String, Void, String> {
         String long2 = params[3];
         //lat2>lat1
 
+        /**
+         * http://www.overpass-api.de/ requires the second latitude parameter to be bigger than the first latitude parameter
+         */
         if (Double.parseDouble(lat1) > Double.parseDouble(lat2)) {
 
             String aux = lat2;
@@ -48,6 +54,13 @@ public class RequestSpeedLimit extends AsyncTask<String, Void, String> {
         requestUrl = requestUrl.replace("lat1", lat1).replace("long1", long1).replace("lat2", lat2).replace("long2", long2);
 
 
+        /**
+         * Tries to make a connection with the http://www.overpass-api.de/ web service
+         * and read the "xapi" file that is returned
+         * (It works just to send the request but not able to get an process the information)
+         * (Tested separately in browser with the link build in the earlier stage, it worked,
+         * so the problem is in the Reader part of code)
+         */
         try {
             URL url = new URL(requestUrl);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
@@ -88,6 +101,13 @@ public class RequestSpeedLimit extends AsyncTask<String, Void, String> {
 
     }
 
+    /**
+     * used for debugging, if the code was functional to retrieve the information,
+     * here would be the code for sending to MainActivity the speed limit found
+     *
+     * @param result should have been the speed limit found between the specified coordinates
+     *               or null if no information was found
+     */
     @Override
     protected void onPostExecute(String result) {
         if (result != null) {

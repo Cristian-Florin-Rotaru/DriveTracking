@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.widget.Button;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -26,6 +25,10 @@ import static android.content.Context.MODE_PRIVATE;
  * Created by ProgrammingKnowledge on 1/5/2016.
  * http://www.codebind.com/android-tutorials-and-examples/android-mysql-database-tutorial-android-login-php-mysql/
  * Modified by Cristian-Florin Rotaru 2018
+ * LoginAsync
+ * Checks the username and password comparing with the accounts available on the database
+ * Uses the LoginPHP.php in order to connect to database
+ * Works in background
  */
 public class LoginAsync extends AsyncTask<String,Void,String> {
     Context context;

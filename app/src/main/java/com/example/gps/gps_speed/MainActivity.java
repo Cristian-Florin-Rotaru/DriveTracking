@@ -20,7 +20,9 @@ import android.widget.Toast;
 import java.util.Formatter;
 import java.util.Locale;
 
-
+/**
+ *
+ */
 public class MainActivity extends AppCompatActivity implements IBaseGpsListener {
 
     private String userID;
@@ -28,7 +30,8 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
     String lat;
     String lon;
     float lastKnownSpeed = 0;
-    float speedLimit = 15;
+    float speedLimit = 5;
+    float harshTrigger = 3;
     float nCurrentSpeed = 0;
     boolean saveLastKnownSpeedDelay = false;    //Used to delay the updates of lastKnownSpeed
     boolean overSpeedDelay = false;             //Used to delay the requests to log into database (no point to have many logs about the same area)
@@ -131,14 +134,15 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
             this.updateSpeed(myLocation);
 
 
-            if (lastKnownSpeed - nCurrentSpeed > 10.0) {
+            if (lastKnownSpeed - nCurrentSpeed > harshTrigger) {
                 Toast.makeText(this, "Starting to log HARSH BRAKE", Toast.LENGTH_SHORT).show();
                 logHarshAction("b");
 
             }
-            if (nCurrentSpeed - lastKnownSpeed > 10.0) {
+            if (nCurrentSpeed - lastKnownSpeed > harshTrigger) {
                 Toast.makeText(this, "Starting to log HARSH ACCELERATION", Toast.LENGTH_SHORT).show();
-                logHarshAction("a");
+                logHarshAction("accel");
+
             }
 
             if (!saveLastKnownSpeedDelay) {
@@ -232,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
 
     public void logHarshAction(String type) {
         HarshLogAsync harshLogAsync = new HarshLogAsync(this);
-        harshLogAsync.execute("type", userID, lat, lon);
+        harshLogAsync.execute(type, userID, lat, lon);
     }
 
     public void logOverLimit(String speed, String spdLimit) {
