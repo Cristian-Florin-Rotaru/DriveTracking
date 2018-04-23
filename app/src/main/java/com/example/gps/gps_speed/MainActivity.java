@@ -35,6 +35,9 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
     float nCurrentSpeed = 0;
     boolean saveLastKnownSpeedDelay = false;    //Used to delay the updates of lastKnownSpeed
     boolean overSpeedDelay = false;             //Used to delay the requests to log into database (no point to have many logs about the same area)
+    boolean harshAccelDelay = false;            //Used to delay the requests to log into database (no point to have many logs about the same area)
+    boolean harshBrakeDelay = false;            //Used to delay the requests to log into database (no point to have many logs about the same area)
+
     TextView user;
     TextView speed;
     TextView latitude;
@@ -50,15 +53,15 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
         setContentView(R.layout.activity_main);
 
         SharedPreferences pref = this.getSharedPreferences("Login_Preference", MODE_PRIVATE);
-        userID=  Integer.toString(pref.getInt("UserID", 0));   // get UserID of the user that logged in as an Integer but convert it to String
-        userName=pref.getString("UserName", null);   // get the UserName of the user that logged in as a String
+        userID = Integer.toString(pref.getInt("UserID", 0));   // get UserID of the user that logged in as an Integer but convert it to String
+        userName = pref.getString("UserName", null);   // get the UserName of the user that logged in as a String
 
-        user                = findViewById(R.id.userTxtView);
-        speed               = findViewById(R.id.speedTxtView);
-        latitude            = findViewById(R.id.latTxtView);
-        longitude           = findViewById(R.id.longTxtView);
-        spdLimit            = findViewById(R.id.spdLimitTxtView);
-        lastKnownSpdLimit   = findViewById(R.id.lastSpdTxtView);
+        user = findViewById(R.id.userTxtView);
+        speed = findViewById(R.id.speedTxtView);
+        latitude = findViewById(R.id.latTxtView);
+        longitude = findViewById(R.id.longTxtView);
+        spdLimit = findViewById(R.id.spdLimitTxtView);
+        lastKnownSpdLimit = findViewById(R.id.lastSpdTxtView);
 
         user.setText("User: " + userName);
         speed.setText("Speed: Not Available");
@@ -81,21 +84,18 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
     }
 
 
-
-    public void finish()
-    {
+    public void finish() {
         super.finish();
         System.exit(0);
     }
 
     private void updateSpeed(CLocation location) {
-        // TODO Auto-generated method stub
+        
         //float nCurrentSpeed = 0;
 
-        if(location != null)
-        {
-            lat =Double.toString(location.getLatitude());
-            lon =Double.toString(location.getLongitude());
+        if (location != null) {
+            lat = Double.toString(location.getLatitude());
+            lon = Double.toString(location.getLongitude());
         }
 
 
@@ -103,7 +103,6 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
         fmt.format(Locale.UK, "%5.1f", nCurrentSpeed);
         String strCurrentSpeed = fmt.toString();
         strCurrentSpeed = strCurrentSpeed.replace(' ', '0');
-
 
 
         String strUnits = "miles/h";     //sets Units string to miles per hour
@@ -119,48 +118,67 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
             logHarshAction("b" ,lat, lon);*/
 
 
-
     }
-
 
 
     @Override
     public void onLocationChanged(Location location) {
 
-        if(location != null)
-        {
+        if (location != null) {
             CLocation myLocation = new CLocation(location);
             nCurrentSpeed = myLocation.getSpeed();
             this.updateSpeed(myLocation);
 
 
-            if (lastKnownSpeed - nCurrentSpeed > harshTrigger) {
+            if (lastKnownSpeed - nCurrentSpeed > harshTrigger && !harshAccelDelay) {
                 Toast.makeText(this, "Starting to log HARSH BRAKE", Toast.LENGTH_SHORT).show();
                 logHarshAction("b");
+                harshAccelDelay = true;
 
-            }
-            if (nCurrentSpeed - lastKnownSpeed > harshTrigger) {
-                Toast.makeText(this, "Starting to log HARSH ACCELERATION", Toast.LENGTH_SHORT).show();
-                logHarshAction("accel");
-
-            }
-
-            if (!saveLastKnownSpeedDelay) {
-                lastKnownSpeed = nCurrentSpeed;
-                saveLastKnownSpeedDelay = true;
-                Log.d("lastSpeed", "true");
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
 
                     @Override
                     public void run() {
-                        saveLastKnownSpeedDelay = false;
-                        Log.d("lastSpeed", "false");
+                        harshAccelDelay = false;
+                        Log.d("harshAccel", "false");
                     }
 
-                }, 1000); // 1second delay
-
+                }, 1500); // 1,5seconds delay
             }
+            if (nCurrentSpeed - lastKnownSpeed > harshTrigger && !harshBrakeDelay) {
+                Toast.makeText(this, "Starting to log HARSH ACCELERATION", Toast.LENGTH_SHORT).show();
+                logHarshAction("accel");
+                harshBrakeDelay = true;
+
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        harshBrakeDelay = false;
+                        Log.d("harshAccel", "false");
+                    }
+
+                }, 1500); // 1,5seconds delay
+            }
+
+        }
+
+        if (!saveLastKnownSpeedDelay) {
+            lastKnownSpeed = nCurrentSpeed;
+            saveLastKnownSpeedDelay = true;
+            Log.d("lastSpeed", "true");
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    saveLastKnownSpeedDelay = false;
+                    Log.d("lastSpeed", "false");
+                }
+
+            }, 1000); // 1second delay
 
         }
 
@@ -186,7 +204,6 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
     }
 
 
-
     @Override
     public void onProviderDisabled(String provider) {
 
@@ -198,13 +215,13 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
 
     }
 
-//    @Override
+    //    @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         // TODO Auto-generated method stub
 
     }
 
-//    @Override
+    //    @Override
     public void onGpsStatusChanged(int event) {
         // TODO Auto-generated method stub
 
@@ -220,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if(id == R.id.logoutButton){
+        if (id == R.id.logoutButton) {
 
             SharedPreferences pref = this.getSharedPreferences("Login_Preference", MODE_PRIVATE);
             SharedPreferences.Editor editor = pref.edit();
