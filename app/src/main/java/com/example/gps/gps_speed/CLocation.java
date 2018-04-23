@@ -4,7 +4,7 @@ import android.location.Location;
 
 public class CLocation extends Location {
 
-    private boolean bUseMetricUnits = false;
+    private boolean bUseMetricUnits = true;
 
     public CLocation(Location location){
         this(location, true);
@@ -67,11 +67,11 @@ public class CLocation extends Location {
     public float getSpeed() {
 
         //convert from metres/second to km/hour
-        float nSpeed = super.getSpeed() * 3.6f;
+        float nSpeed = super.getSpeed();
         if(!this.getUseMetricUnits())
         {
             //Convert metres/second to miles/hour
-            nSpeed = nSpeed * 2.2369362920544f/3.6f;
+            nSpeed = nSpeed * 2.2369362920544f;
         }
         return nSpeed;
     }

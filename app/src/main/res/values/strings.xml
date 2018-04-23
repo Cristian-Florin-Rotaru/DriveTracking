@@ -1,3 +1,17 @@
 <resources>
-    <string name="app_name">GPS_speed</string>
+    <string name="app_name">DriverNet-SpeedTracker</string>
+    <string name="userName">User Name</string>
+    <string name="loginTxtView">Login</string>
+    <string name="usernameTxtField">User Name</string>
+    <string name="loginButton">Login</string>
+    <string name="passwordField">Password</string>
+    <string name="userTxtView">Username:</string>
+    <string name="speedTxtView">Speed:</string>
+    <string name="latTxtView">Latitude:</string>
+    <string name="longTxtView">Longitude</string>
+    <string name="spdLimitTxtView">Current speed limit:</string>
+    <string name="lastSpdTxtView">Last known speed limit:</string>
+    <string name="logoutButton">Log out</string>
+    <string name="testButton">Test Log</string>
+
 </resources>

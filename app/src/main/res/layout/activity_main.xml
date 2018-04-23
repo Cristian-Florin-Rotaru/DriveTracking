@@ -6,46 +6,77 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
-    <GridLayout
-        android:id="@+id/gridLayout"
-        android:layout_width="230dp"
-        android:layout_height="98dp"
+
+    <LinearLayout
+        android:layout_width="328dp"
+        android:layout_height="449dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:columnCount="1"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.498">
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/txtCurrentSpeed"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="000.0 miles/hour"
-            android:textSize="17dp"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            tools:layout_editor_absoluteX="0dp"
-            tools:layout_editor_absoluteY="122dp" />
+            android:id="@+id/userTxtView"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:textSize="15dp"
+            android:text="@+id/userTxtView" />
 
-        <CheckBox
-            android:id="@+id/chkMetricUnits"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Use metric units?"
-            tools:layout_editor_absoluteX="133dp"
-            tools:layout_editor_absoluteY="200dp" />
+        <TextView
+            android:id="@+id/speedTxtView"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:textSize="15dp"
+            android:text="@+id/speedTxtView" />
 
+        <TextView
+            android:id="@+id/latTxtView"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:textSize="15dp"
+            android:text="@+id/latTxtView" />
 
-    </GridLayout>
+        <TextView
+            android:id="@+id/longTxtView"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:textSize="15dp"
+            android:text="@+id/longTxtView" />
 
-    <RadioGroup
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="206dp" />
+        <TextView
+            android:id="@+id/spdLimitTxtView"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:textSize="15dp"
+            android:text="@+id/spdLimitTxtView" />
 
+        <TextView
+            android:id="@+id/lastSpdTxtView"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:textSize="15dp"
+            android:text="@+id/lastSpdTxtView" />
+
+        <EditText
+            android:id="@+id/txtFieldTest"
+            android:layout_width="match_parent"
+            android:hint="a or b or s"
+            android:ems="10"
+            android:layout_height="50dp"
+            android:inputType="textPersonName" />
+
+        <Button
+            android:id="@+id/testButton"
+            android:layout_width="229dp"
+            android:layout_height="50dp"
+            android:text="@+id/lastSpdTxtView"
+            android:onClick="onTest"/>
+    </LinearLayout>
 </android.support.constraint.ConstraintLayout>

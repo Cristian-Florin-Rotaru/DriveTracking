@@ -1,48 +1,61 @@
 package com.example.gps.gps_speed;
 
 import android.Manifest;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
-import android.os.Environment;
+import android.location.Location;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.util.Formatter;
-import java.util.List;
 import java.util.Locale;
-
-import android.location.Location;
 import android.location.LocationManager;
 import android.content.Context;
-import android.util.Log;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.TimePicker;
 
 
 public class MainActivity extends AppCompatActivity implements IBaseGpsListener {
 
+    private String userID;
+    private String userName;
+    String lat;
+    String lon;
+    EditText testTxt;
+    TextView user;
+    TextView speed;
+    TextView latitude;
+    TextView longitude;
+    TextView spdLimit;
+    TextView lastKnownSpdLimit;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        //Checks for Location permission and asks for it if it was not granted
-        PermissionRequest permReq = new PermissionRequest(this);
-        permReq.locPermissionCheck();
-
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        SharedPreferences pref = this.getSharedPreferences("Login_Preference", MODE_PRIVATE);
+        userID=  Integer.toString(pref.getInt("UserID", 0));   // get UserID of the user that logged in as an Integer but convert it to String
+        userName=pref.getString("UserName", null);   // get the UserName of the user that logged in as a String
+
+        user                = findViewById(R.id.userTxtView);
+        speed               = findViewById(R.id.speedTxtView);
+        latitude            = findViewById(R.id.latTxtView);
+        longitude           = findViewById(R.id.longTxtView);
+        spdLimit            = findViewById(R.id.spdLimitTxtView);
+        lastKnownSpdLimit   = findViewById(R.id.lastSpdTxtView);
+
+        user.setText("User: " + userName);
+        speed.setText("Speed: Not Available");
+        latitude.setText("Latitude: Not Available");
+        longitude.setText("Longitude: Not Available");
+        spdLimit.setText("Speed Limit: Not Available");
+        lastKnownSpdLimit.setText("Last Speed Limit: Not Available");
 
 
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
@@ -57,16 +70,6 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
 
 
 
-
-       /* CheckBox chkUseMetricUntis = (CheckBox) this.findViewById(R.id.chkMetricUnits);
-        chkUseMetricUntis.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                MainActivity.this.updateSpeed(null);
-
-            }
-        });*/
 
 
     }
@@ -85,8 +88,9 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
 
         if(location != null)
         {
-            location.setUseMetricUnits(this.useMetricUnits());
             nCurrentSpeed = location.getSpeed();
+            lat =Double.toString(location.getLatitude());
+            lon =Double.toString(location.getLongitude());
         }
 
         Formatter fmt = new Formatter(new StringBuilder());
@@ -94,43 +98,35 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
         String strCurrentSpeed = fmt.toString();
         strCurrentSpeed = strCurrentSpeed.replace(' ', '0');
 
-        String strUnits = "mph";        //sets Units string to miles per hour
-        if(this.useMetricUnits())
-        {
-            strUnits = "km/h";          //sets Units string to kilometres per hour
-        }
 
-        TextView txtCurrentSpeed = (TextView) this.findViewById(R.id.txtCurrentSpeed);
-        txtCurrentSpeed.setTextColor(Color.BLACK);
 
-        if (this.useMetricUnits())
-        if (Double.parseDouble(strCurrentSpeed) > 5)
-            txtCurrentSpeed.setTextColor(Color.RED);
-        txtCurrentSpeed.setText(strCurrentSpeed + " " + strUnits);
+        String strUnits = "miles/h";     //sets Units string to miles per hour
+        speed.setText("Speed: " + strCurrentSpeed + strUnits);
+
+        latitude.setText("Latitude: " + lat);
+        longitude.setText("Longitude: " + lon);
+
     }
 
-    private boolean useMetricUnits() {
 
-        CheckBox chkUseMetricUnits = (CheckBox) this.findViewById(R.id.chkMetricUnits);
-        return chkUseMetricUnits.isChecked();
-    }
 
-//    @Override
+    @Override
     public void onLocationChanged(Location location) {
 
         if(location != null)
         {
-            CLocation myLocation = new CLocation(location, this.useMetricUnits());
+            CLocation myLocation = new CLocation(location);
             this.updateSpeed(myLocation);
+
         }
     }
 
-//    @Override
+    @Override
     public void onProviderDisabled(String provider) {
 
     }
 
-//    @Override
+    @Override
     public void onProviderEnabled(String provider) {
         // TODO Auto-generated method stub
 
@@ -148,6 +144,36 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
 
     }
 
+    //Creates the three dot menu in top right corner, that has the option to log out
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.logoutButton){
+
+            SharedPreferences pref = this.getSharedPreferences("Login_Preference", MODE_PRIVATE);
+            SharedPreferences.Editor editor = pref.edit();
+            editor.remove("UserID");
+            editor.remove("UserName");
+            editor.commit();
+            this.startActivity(new Intent(this, LoginActivity.class));
+            finish();
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void onTest (){
+        testTxt = findViewById(R.id.txtFieldTest);
+        String type = testTxt.getText().toString();
+        HarshLogAsync harshLogAsync = new HarshLogAsync(this);
+        harshLogAsync.execute(type ,userID, lat, lon);
+    }
 
 
 }
