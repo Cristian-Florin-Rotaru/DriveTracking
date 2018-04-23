@@ -1,21 +1,24 @@
 package com.example.gps.gps_speed;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import java.util.Formatter;
-import java.util.Locale;
-import android.location.LocationManager;
-import android.content.Context;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.Formatter;
+import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity implements IBaseGpsListener {
@@ -24,7 +27,11 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
     private String userName;
     String lat;
     String lon;
-    EditText testTxt;
+    float lastKnownSpeed = 0;
+    float speedLimit = 15;
+    float nCurrentSpeed = 0;
+    boolean saveLastKnownSpeedDelay = false;    //Used to delay the updates of lastKnownSpeed
+    boolean overSpeedDelay = false;             //Used to delay the requests to log into database (no point to have many logs about the same area)
     TextView user;
     TextView speed;
     TextView latitude;
@@ -54,8 +61,8 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
         speed.setText("Speed: Not Available");
         latitude.setText("Latitude: Not Available");
         longitude.setText("Longitude: Not Available");
-        spdLimit.setText("Speed Limit: Not Available");
-        lastKnownSpdLimit.setText("Last Speed Limit: Not Available");
+        spdLimit.setText("Speed Limit: " + speedLimit);
+        lastKnownSpdLimit.setText("Last Speed Limit:" + speedLimit);
 
 
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
@@ -66,10 +73,6 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         this.updateSpeed(null);
-
-
-
-
 
 
     }
@@ -84,14 +87,14 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
 
     private void updateSpeed(CLocation location) {
         // TODO Auto-generated method stub
-        float nCurrentSpeed = 0;
+        //float nCurrentSpeed = 0;
 
         if(location != null)
         {
-            nCurrentSpeed = location.getSpeed();
             lat =Double.toString(location.getLatitude());
             lon =Double.toString(location.getLongitude());
         }
+
 
         Formatter fmt = new Formatter(new StringBuilder());
         fmt.format(Locale.UK, "%5.1f", nCurrentSpeed);
@@ -106,6 +109,14 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
         latitude.setText("Latitude: " + lat);
         longitude.setText("Longitude: " + lon);
 
+        /*if (lastKnownSpeed - nCurrentSpeed > 12.0)
+            logHarshAction("b" ,lat, lon);
+
+        if (lastKnownSpeed - nCurrentSpeed < 12.0)
+            logHarshAction("b" ,lat, lon);*/
+
+
+
     }
 
 
@@ -116,10 +127,61 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
         if(location != null)
         {
             CLocation myLocation = new CLocation(location);
+            nCurrentSpeed = myLocation.getSpeed();
             this.updateSpeed(myLocation);
 
+
+            if (lastKnownSpeed - nCurrentSpeed > 10.0) {
+                Toast.makeText(this, "Starting to log HARSH BRAKE", Toast.LENGTH_SHORT).show();
+                logHarshAction("b");
+
+            }
+            if (nCurrentSpeed - lastKnownSpeed > 10.0) {
+                Toast.makeText(this, "Starting to log HARSH ACCELERATION", Toast.LENGTH_SHORT).show();
+                logHarshAction("a");
+            }
+
+            if (!saveLastKnownSpeedDelay) {
+                lastKnownSpeed = nCurrentSpeed;
+                saveLastKnownSpeedDelay = true;
+                Log.d("lastSpeed", "true");
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        saveLastKnownSpeedDelay = false;
+                        Log.d("lastSpeed", "false");
+                    }
+
+                }, 1000); // 1second delay
+
+            }
+
         }
+
+
+        if (nCurrentSpeed > speedLimit && !overSpeedDelay) {
+            Toast.makeText(this, "Starting to log SURPASSED LIMIT", Toast.LENGTH_SHORT).show();
+            logOverLimit(Float.toString(nCurrentSpeed), Float.toString(speedLimit));
+            overSpeedDelay = true;
+            Log.d("overspeed", "true");
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    overSpeedDelay = false;
+                    Log.d("overspeed", "false");
+                }
+
+            }, 30000); // 30seconds delay
+
+        }
+
     }
+
+
 
     @Override
     public void onProviderDisabled(String provider) {
@@ -168,12 +230,14 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
         return super.onOptionsItemSelected(item);
     }
 
-    public void onTest (){
-        testTxt = findViewById(R.id.txtFieldTest);
-        String type = testTxt.getText().toString();
+    public void logHarshAction(String type) {
         HarshLogAsync harshLogAsync = new HarshLogAsync(this);
-        harshLogAsync.execute(type ,userID, lat, lon);
+        harshLogAsync.execute("type", userID, lat, lon);
     }
 
+    public void logOverLimit(String speed, String spdLimit) {
+        OverLimitLog overLimitLog = new OverLimitLog(this);
+        overLimitLog.execute(userID, speed, spdLimit, lat, lon);
+    }
 
 }

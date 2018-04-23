@@ -1,9 +1,6 @@
 package com.example.gps.gps_speed;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
@@ -19,11 +16,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
-import static android.content.Context.MODE_PRIVATE;
 
 public class HarshLogAsync  extends AsyncTask<String,Void,String> {
     Context context;
-    AlertDialog alertDialog;
     String action;
 
 
@@ -35,10 +30,10 @@ public class HarshLogAsync  extends AsyncTask<String,Void,String> {
     protected String doInBackground(String... params) {
         String type = params[0];
 
-        String login_url = "https://speedtracker.000webhostapp.com/AggroBrakeLog.php";
+        String logUrl = "https://speedtracker.000webhostapp.com/AggroBrakeLog.php";
         action = "Brake";
-        if (type.equals("accel")) {
-            login_url = "https://speedtracker.000webhostapp.com/AggroAccelLog.php";
+        if (type.equals("a")) {
+            logUrl = "https://speedtracker.000webhostapp.com/AggroAccelLog.php";
             action = "Acceleration";
     }
 
@@ -47,7 +42,7 @@ public class HarshLogAsync  extends AsyncTask<String,Void,String> {
                 String userID = params[1];
                 String latitude = params[2];
                 String longitude = params[3];
-                URL url = new URL(login_url);
+                URL url = new URL(logUrl);
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                 httpURLConnection.setRequestMethod("POST");
                 httpURLConnection.setDoOutput(true);
@@ -83,17 +78,17 @@ public class HarshLogAsync  extends AsyncTask<String,Void,String> {
 
     @Override
     protected void onPreExecute() {
-
+        super.onPreExecute();
 
     }
 
     @Override
     protected void onPostExecute(String result) {
         if(result.contains("yes")) {
-            Toast.makeText(context, "Successfully Logged Harsh " + action, Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Successfully Logged Harsh " + action, Toast.LENGTH_SHORT).show();
         }
         else {
-            Toast.makeText(context, "Could not Log Harsh " + action, Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Could not Log Harsh " + action, Toast.LENGTH_SHORT).show();
         }
 
     }

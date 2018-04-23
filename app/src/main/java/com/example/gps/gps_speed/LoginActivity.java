@@ -11,7 +11,6 @@ public class LoginActivity extends AppCompatActivity {
 
     EditText UsernameEt, PasswordEt;
     private int UserID;
-    private String UserName;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //Checks for Location and Internet access permission and asks for it if it was not granted
@@ -31,6 +30,12 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Checks the Username and password
+     * and changes the activity to "MainActivity"
+     * if the detail introduced are correspond to
+     * an account
+     */
     public void onLogin(View view) {
         String username = UsernameEt.getText().toString();
         String password = PasswordEt.getText().toString();

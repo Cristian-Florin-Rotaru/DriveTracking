@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="328dp"
-        android:layout_height="449dp"
+        android:layout_height="467dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
@@ -20,63 +20,52 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.267">
 
         <TextView
             android:id="@+id/userTxtView"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:textSize="15dp"
-            android:text="@+id/userTxtView" />
+            android:layout_height="70dp"
+            android:text="@+id/userTxtView"
+            android:textSize="25dp" />
 
         <TextView
             android:id="@+id/speedTxtView"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:textSize="15dp"
-            android:text="@+id/speedTxtView" />
+            android:layout_height="70dp"
+            android:text="@+id/speedTxtView"
+            android:textSize="25dp" />
 
         <TextView
             android:id="@+id/latTxtView"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:textSize="15dp"
-            android:text="@+id/latTxtView" />
+            android:layout_height="70dp"
+            android:text="@+id/latTxtView"
+            android:textSize="25dp" />
 
         <TextView
             android:id="@+id/longTxtView"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:textSize="15dp"
-            android:text="@+id/longTxtView" />
+            android:layout_height="70dp"
+            android:text="@+id/longTxtView"
+            android:textSize="25dp" />
 
         <TextView
             android:id="@+id/spdLimitTxtView"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:textSize="15dp"
-            android:text="@+id/spdLimitTxtView" />
+            android:layout_height="70dp"
+            android:text="@+id/spdLimitTxtView"
+            android:textSize="25dp" />
 
         <TextView
             android:id="@+id/lastSpdTxtView"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:textSize="15dp"
-            android:text="@+id/lastSpdTxtView" />
-
-        <EditText
-            android:id="@+id/txtFieldTest"
-            android:layout_width="match_parent"
-            android:hint="a or b or s"
-            android:ems="10"
-            android:layout_height="50dp"
-            android:inputType="textPersonName" />
-
-        <Button
-            android:id="@+id/testButton"
-            android:layout_width="229dp"
-            android:layout_height="50dp"
+            android:layout_height="70dp"
             android:text="@+id/lastSpdTxtView"
-            android:onClick="onTest"/>
+            android:textSize="25dp" />
+
+
     </LinearLayout>
+
 </android.support.constraint.ConstraintLayout>
