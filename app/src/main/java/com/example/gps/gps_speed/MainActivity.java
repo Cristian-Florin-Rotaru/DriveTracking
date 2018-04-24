@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
             return;
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-        this.updateSpeed(null);
+        this.updateLocation(null);
 
 
     }
@@ -87,7 +87,12 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
         System.exit(0);
     }
 
-    private void updateSpeed(Location location) {
+    /**
+     * Updates the text in MainActivity for Latitude, Longitude and Speed
+     *
+     * @param location
+     */
+    private void updateLocation(Location location) {
 
 
         if (location != null) {
@@ -109,12 +114,6 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
         latitude.setText("Latitude: " + lat);
         longitude.setText("Longitude: " + lon);
 
-        /*if (lastKnownSpeed - nCurrentSpeed > 12.0)
-            logHarshAction("b" ,lat, lon);
-
-        if (lastKnownSpeed - nCurrentSpeed < 12.0)
-            logHarshAction("b" ,lat, lon);*/
-
 
     }
 
@@ -125,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
         if (location != null) {
             //Converts m/s to mph
             nCurrentSpeed = location.getSpeed() * 2.2369362920544f;
-            this.updateSpeed(location);
+            this.updateLocation(location);
 
 
             //Checks if the speed dropped below the "harshTrigger", if so, it logs into database
