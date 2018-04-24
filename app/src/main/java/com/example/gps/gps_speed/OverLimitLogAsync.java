@@ -22,12 +22,12 @@ import java.net.URLEncoder;
  * Connects to database using SpeedLimitLog.php located on
  * https://speedtracker.000webhostapp.com/ (Used free web hosting service)
  */
-public class OverLimitLog extends AsyncTask<String, Void, String> {
+public class OverLimitLogAsync extends AsyncTask<String, Void, String> {
     Context context;
     String action;
 
 
-    OverLimitLog(Context ctx) {
+    OverLimitLogAsync(Context ctx) {
         this.context = ctx;
     }
 

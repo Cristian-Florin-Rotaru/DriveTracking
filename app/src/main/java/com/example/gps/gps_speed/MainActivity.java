@@ -20,9 +20,7 @@ import android.widget.Toast;
 import java.util.Formatter;
 import java.util.Locale;
 
-/**
- *
- */
+
 public class MainActivity extends AppCompatActivity implements IBaseGpsListener {
 
     private String userID;
@@ -30,8 +28,8 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
     String lat;
     String lon;
     float lastKnownSpeed = 0;
-    float speedLimit = 5;
-    float harshTrigger = 3;
+    float speedLimit = 8;
+    float harshTrigger = 7;
     float nCurrentSpeed = 0;
     boolean saveLastKnownSpeedDelay = false;    //Used to delay the updates of lastKnownSpeed
     boolean overSpeedDelay = false;             //Used to delay the requests to log into database (no point to have many logs about the same area)
@@ -89,9 +87,8 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
         System.exit(0);
     }
 
-    private void updateSpeed(CLocation location) {
-        
-        //float nCurrentSpeed = 0;
+    private void updateSpeed(Location location) {
+
 
         if (location != null) {
             lat = Double.toString(location.getLatitude());
@@ -99,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
         }
 
 
+        //Formats the strCurrentSpeed to have a format like this: "000.0"
         Formatter fmt = new Formatter(new StringBuilder());
         fmt.format(Locale.UK, "%5.1f", nCurrentSpeed);
         String strCurrentSpeed = fmt.toString();
@@ -125,30 +123,16 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
     public void onLocationChanged(Location location) {
 
         if (location != null) {
-            CLocation myLocation = new CLocation(location);
-            nCurrentSpeed = myLocation.getSpeed();
-            this.updateSpeed(myLocation);
+            //Converts m/s to mph
+            nCurrentSpeed = location.getSpeed() * 2.2369362920544f;
+            this.updateSpeed(location);
 
 
-            if (lastKnownSpeed - nCurrentSpeed > harshTrigger && !harshAccelDelay) {
+            //Checks if the speed dropped below the "harshTrigger", if so, it logs into database
+            //and starts a delay of 3 seconds until the next
+            if (lastKnownSpeed - nCurrentSpeed > harshTrigger && !harshBrakeDelay) {
                 Toast.makeText(this, "Starting to log HARSH BRAKE", Toast.LENGTH_SHORT).show();
                 logHarshAction("b");
-                harshAccelDelay = true;
-
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        harshAccelDelay = false;
-                        Log.d("harshAccel", "false");
-                    }
-
-                }, 1500); // 1,5seconds delay
-            }
-            if (nCurrentSpeed - lastKnownSpeed > harshTrigger && !harshBrakeDelay) {
-                Toast.makeText(this, "Starting to log HARSH ACCELERATION", Toast.LENGTH_SHORT).show();
-                logHarshAction("accel");
                 harshBrakeDelay = true;
 
                 Handler handler = new Handler();
@@ -160,11 +144,30 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
                         Log.d("harshAccel", "false");
                     }
 
-                }, 1500); // 1,5seconds delay
+                }, 3000); // 3 seconds delay
+            }
+            if (nCurrentSpeed - lastKnownSpeed > harshTrigger && !harshAccelDelay) {
+                Toast.makeText(this, "Starting to log HARSH ACCELERATION", Toast.LENGTH_SHORT).show();
+                logHarshAction("accel");
+                harshAccelDelay = true;
+
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        harshAccelDelay = false;
+                        Log.d("harshAccel", "false");
+                    }
+
+                }, 3000); // 3 seconds delay
             }
 
         }
 
+        //lastKnownSpeed gets the current speed and then it is set a delay of 1 sec
+        //until it can be updated again (it helps the app to compare the current speed value
+        //with the one that that was registered a second before
         if (!saveLastKnownSpeedDelay) {
             lastKnownSpeed = nCurrentSpeed;
             saveLastKnownSpeedDelay = true;
@@ -183,6 +186,8 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
         }
 
 
+        //logs if the speed was exceeded and it gives a delay of 30 seconds so it will not
+        //log into database too many over speed limit records
         if (nCurrentSpeed > speedLimit && !overSpeedDelay) {
             Toast.makeText(this, "Starting to log SURPASSED LIMIT", Toast.LENGTH_SHORT).show();
             logOverLimit(Float.toString(nCurrentSpeed), Float.toString(speedLimit));
@@ -211,19 +216,17 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
 
     @Override
     public void onProviderEnabled(String provider) {
-        // TODO Auto-generated method stub
 
     }
 
-    //    @Override
+    @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        // TODO Auto-generated method stub
+
 
     }
 
-    //    @Override
+    @Override
     public void onGpsStatusChanged(int event) {
-        // TODO Auto-generated method stub
 
     }
 
@@ -234,6 +237,14 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
         return true;
     }
 
+    /**
+     * Creates the 3 dot menu that has the log out button
+     * If the log out button is pressed, deletes the information from shared preferences,
+     * kills the MainActivity and starts the Login Activity
+     *
+     * @param item
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -251,14 +262,25 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Logs when Aggressive Acceleration or Harsh Brake is detected
+     *
+     * @param type tells the method what type of log it is (acceleration or brake)
+     */
     public void logHarshAction(String type) {
         HarshLogAsync harshLogAsync = new HarshLogAsync(this);
         harshLogAsync.execute(type, userID, lat, lon);
     }
 
+    /**
+     * Logs when over speed limit was detected
+     *
+     * @param speed    current speed
+     * @param spdLimit speed limit
+     */
     public void logOverLimit(String speed, String spdLimit) {
-        OverLimitLog overLimitLog = new OverLimitLog(this);
-        overLimitLog.execute(userID, speed, spdLimit, lat, lon);
+        OverLimitLogAsync overLimitLogAsync = new OverLimitLogAsync(this);
+        overLimitLogAsync.execute(userID, speed, spdLimit, lat, lon);
     }
 
 }

@@ -100,7 +100,7 @@ public class LoginAsync extends AsyncTask<String,Void,String> {
 
             alertDialog.setMessage("Welcome " + user[1]);
             alertDialog.show();
-            Toast.makeText(context, "Access Allowed", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Access Allowed", Toast.LENGTH_SHORT).show();
             //Saves the UserID and UserName in shared preferences, helps main activity to know
             //wich user is logged on and also helps LoginActivity to go directly to MainActivity
             //if the user did not log out before closing
@@ -110,6 +110,7 @@ public class LoginAsync extends AsyncTask<String,Void,String> {
             editor.putString("UserName", user[1]);
             editor.apply();
             context.startActivity(new Intent(context, MainActivity.class));
+
         }
 
     }
