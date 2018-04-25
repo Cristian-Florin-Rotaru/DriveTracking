@@ -1,5 +1,6 @@
 package com.example.gps.gps_speed;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -109,7 +110,8 @@ public class LoginAsync extends AsyncTask<String,Void,String> {
             editor.putInt("UserID", Integer.parseInt(user[0]));
             editor.putString("UserName", user[1]);
             editor.apply();
-            context.startActivity(new Intent(context, MainActivity.class));
+            context.startActivity(new Intent(context, MainActivity.class));     //starts MainActivity
+            ((Activity) context).finish();                                       //Closes LoginActivity
 
         }
 
