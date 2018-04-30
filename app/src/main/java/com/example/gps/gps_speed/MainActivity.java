@@ -25,23 +25,22 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
 
     private String userID;
     private String userName;
-    String lat;
-    String lon;
-    float lastKnownSpeed = 0;
-    float speedLimit = 25;
-    float harshTrigger = 10;
-    float nCurrentSpeed = 0;
-    boolean saveLastKnownSpeedDelay = false;    //Used to delay the updates of lastKnownSpeed
-    boolean overSpeedDelay = false;             //Used to delay the requests to log into database (no point to have many logs about the same area)
-    boolean harshAccelDelay = false;            //Used to delay the requests to log into database (no point to have many logs about the same area)
-    boolean harshBrakeDelay = false;            //Used to delay the requests to log into database (no point to have many logs about the same area)
-
-    TextView user;
-    TextView speed;
-    TextView latitude;
-    TextView longitude;
-    TextView spdLimit;
-    TextView lastKnownSpdLimit;
+    private String lat;
+    private String lon;
+    private float lastKnownSpeed = 0;
+    private float speedLimit = 25;
+    private float harshTrigger = 10;
+    private float nCurrentSpeed = 0;
+    private boolean saveLastKnownSpeedDelay = false;    //Used to delay the updates of lastKnownSpeed
+    private boolean overSpeedDelay = false;             //Used to delay the requests to log into database (no point to have many logs about the same area)
+    private boolean harshAccelDelay = false;            //Used to delay the requests to log into database (no point to have many logs about the same area)
+    private boolean harshBrakeDelay = false;            //Used to delay the requests to log into database (no point to have many logs about the same area)
+    private TextView user;
+    private TextView speed;
+    private TextView latitude;
+    private TextView longitude;
+    private TextView spdLimit;
+    private TextView lastKnownSpdLimit;
 
 
     @Override
@@ -90,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
         userID = Integer.toString(pref.getInt("UserID", 0));   // get UserID of the user that logged in as an Integer but convert it to String
         userName = pref.getString("UserName", null);   // get the UserName of the user that logged in as a String
     }
+
     public void finish() {
         super.finish();
         System.exit(0);
@@ -97,11 +97,13 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
 
     /**
      * Updates the text in MainActivity for Latitude, Longitude and Speed
+     *
      * @param location
      */
     private void updateLocation(Location location) {
 
 
+        //saves the coordinates in lat and lon variables
         if (location != null) {
             lat = Double.toString(location.getLatitude());
             lon = Double.toString(location.getLongitude());
@@ -124,7 +126,11 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
 
     }
 
-
+    /**
+     * Whenever the location is changed, retrieves the speed as mph
+     *
+     * @param location
+     */
     @Override
     public void onLocationChanged(Location location) {
 
@@ -132,42 +138,7 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
             //Converts m/s to mph
             nCurrentSpeed = location.getSpeed() * 2.2369362920544f;
             this.updateLocation(location);
-
-
-            //Checks if the speed dropped below the "harshTrigger", if so, it logs into database
-            //and starts a delay of 3 seconds until the next
-            if (lastKnownSpeed - nCurrentSpeed > harshTrigger && !harshBrakeDelay) {
-                Toast.makeText(this, "Starting to log HARSH BRAKE", Toast.LENGTH_SHORT).show();
-                logHarshAction("b");
-                harshBrakeDelay = true;
-
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        harshBrakeDelay = false;
-                        Log.d("harshAccel", "false");
-                    }
-
-                }, 3000); // 3 seconds delay
-            }
-            if (nCurrentSpeed - lastKnownSpeed > harshTrigger && !harshAccelDelay) {
-                Toast.makeText(this, "Starting to log HARSH ACCELERATION", Toast.LENGTH_SHORT).show();
-                logHarshAction("accel");
-                harshAccelDelay = true;
-
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        harshAccelDelay = false;
-                        Log.d("harshAccel", "false");
-                    }
-
-                }, 3000); // 3 seconds delay
-            }
+            checkAggressiveAction();
 
         }
 
@@ -192,9 +163,10 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
         }
 
 
-        //logs if the speed was exceeded and it gives a delay of 30 seconds so it will not
-        //log into database too many over speed limit records
-        if (nCurrentSpeed > speedLimit && !overSpeedDelay) {
+        //logs if the speed was exceeded and it gives a delay of 30 seconds so
+        //it will not log into database too many over speed limit records
+        //checks if speedLimit > 0 (has a value)
+        if (nCurrentSpeed > speedLimit && !overSpeedDelay && speedLimit > 0) {
             Toast.makeText(this, "Starting to log SURPASSED LIMIT", Toast.LENGTH_SHORT).show();
             logOverLimit(Float.toString(nCurrentSpeed), Float.toString(speedLimit));
             overSpeedDelay = true;
@@ -244,10 +216,51 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
      *
      * @param type tells the method what type of log it is (acceleration or brake)
      */
-    public void logHarshAction(String type) {
+    private void logAggressiveAction(String type) {
         HarshLogAsync harshLogAsync = new HarshLogAsync(this);
         harshLogAsync.execute(type, userID, lat, lon);
     }
+
+    /**
+     * checks for HarshBrakes or Aggressive Acceleration and triggers logAggressiveAction if any was detected
+     */
+    private void checkAggressiveAction() {
+        //Checks if the speed dropped below the "harshTrigger", if so, it logs into database
+        //and starts a delay of 3 seconds until the next
+        if (lastKnownSpeed - nCurrentSpeed > harshTrigger && !harshBrakeDelay) {
+            Toast.makeText(this, "Starting to log HARSH BRAKE", Toast.LENGTH_SHORT).show();
+            logAggressiveAction("b");
+            harshBrakeDelay = true;
+
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    harshBrakeDelay = false;
+                    Log.d("harshAccel", "false");
+                }
+
+            }, 3000); // 3 seconds delay
+        }
+        if (nCurrentSpeed - lastKnownSpeed > harshTrigger && !harshAccelDelay) {
+            Toast.makeText(this, "Starting to log HARSH ACCELERATION", Toast.LENGTH_SHORT).show();
+            logAggressiveAction("accel");
+            harshAccelDelay = true;
+
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    harshAccelDelay = false;
+                    Log.d("harshAccel", "false");
+                }
+
+            }, 3000); // 3 seconds delay
+        }
+    }
+
 
     /**
      * Logs when over speed limit was detected
@@ -255,11 +268,10 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
      * @param speed    current speed
      * @param spdLimit speed limit
      */
-    public void logOverLimit(String speed, String spdLimit) {
+    private void logOverLimit(String speed, String spdLimit) {
         OverLimitLogAsync overLimitLogAsync = new OverLimitLogAsync(this);
         overLimitLogAsync.execute(userID, speed, spdLimit, lat, lon);
     }
-
 
 
     @Override

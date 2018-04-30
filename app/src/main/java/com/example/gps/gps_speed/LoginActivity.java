@@ -14,9 +14,8 @@ import android.widget.EditText;
  */
 public class LoginActivity extends AppCompatActivity {
 
-    EditText UsernameEt, PasswordEt;
+    private EditText UsernameEt, PasswordEt;
     private String userName;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //Checks for Location access permission and asks for it if it was not granted
