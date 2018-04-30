@@ -28,8 +28,8 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
     String lat;
     String lon;
     float lastKnownSpeed = 0;
-    float speedLimit = 8;
-    float harshTrigger = 7;
+    float speedLimit = 25;
+    float harshTrigger = 10;
     float nCurrentSpeed = 0;
     boolean saveLastKnownSpeedDelay = false;    //Used to delay the updates of lastKnownSpeed
     boolean overSpeedDelay = false;             //Used to delay the requests to log into database (no point to have many logs about the same area)
@@ -50,24 +50,9 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SharedPreferences pref = this.getSharedPreferences("Login_Preference", MODE_PRIVATE);
-        userID = Integer.toString(pref.getInt("UserID", 0));   // get UserID of the user that logged in as an Integer but convert it to String
-        userName = pref.getString("UserName", null);   // get the UserName of the user that logged in as a String
 
-        user = findViewById(R.id.userTxtView);
-        speed = findViewById(R.id.speedTxtView);
-        latitude = findViewById(R.id.latTxtView);
-        longitude = findViewById(R.id.longTxtView);
-        spdLimit = findViewById(R.id.spdLimitTxtView);
-        lastKnownSpdLimit = findViewById(R.id.lastSpdTxtView);
-
-        user.setText("User: " + userName);
-        speed.setText("Speed: Not Available");
-        latitude.setText("Latitude: Not Available");
-        longitude.setText("Longitude: Not Available");
-        spdLimit.setText("Speed Limit: " + speedLimit);
-        lastKnownSpdLimit.setText("Last Speed Limit:" + speedLimit);
-
+        retrieveSharedPrefs();
+        setTextViews();
 
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -81,7 +66,30 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
 
     }
 
+    /**
+     * sets the default text views when MainActivity is loaded (until the information from location is received)
+     */
+    private void setTextViews() {
+        user = findViewById(R.id.userTxtView);
+        speed = findViewById(R.id.speedTxtView);
+        latitude = findViewById(R.id.latTxtView);
+        longitude = findViewById(R.id.longTxtView);
+        spdLimit = findViewById(R.id.spdLimitTxtView);
+        lastKnownSpdLimit = findViewById(R.id.lastSpdTxtView);
 
+        user.setText("User: " + userName);
+        speed.setText("Speed: Not Available");
+        latitude.setText("Latitude: Not Available");
+        longitude.setText("Longitude: Not Available");
+        spdLimit.setText("Speed Limit: " + speedLimit);
+        lastKnownSpdLimit.setText("Last Speed Limit:" + speedLimit);
+    }
+
+    private void retrieveSharedPrefs() {
+        SharedPreferences pref = this.getSharedPreferences("Login_Preference", MODE_PRIVATE);
+        userID = Integer.toString(pref.getInt("UserID", 0));   // get UserID of the user that logged in as an Integer but convert it to String
+        userName = pref.getString("UserName", null);   // get the UserName of the user that logged in as a String
+    }
     public void finish() {
         super.finish();
         System.exit(0);
@@ -89,7 +97,6 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
 
     /**
      * Updates the text in MainActivity for Latitude, Longitude and Speed
-     *
      * @param location
      */
     private void updateLocation(Location location) {
@@ -207,35 +214,6 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
 
     }
 
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-
-    }
-
-    @Override
-    public void onGpsStatusChanged(int event) {
-
-    }
-
-    //Creates the three dot menu in top right corner, that has the option to log out
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return true;
-    }
-
     /**
      * Creates the 3 dot menu that has the log out button
      * If the log out button is pressed, deletes the information from shared preferences,
@@ -282,4 +260,33 @@ public class MainActivity extends AppCompatActivity implements IBaseGpsListener 
         overLimitLogAsync.execute(userID, speed, spdLimit, lat, lon);
     }
 
+
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+
+    }
+
+    @Override
+    public void onGpsStatusChanged(int event) {
+
+    }
+
+    //Creates the three dot menu in top right corner, that has the option to log out
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
 }

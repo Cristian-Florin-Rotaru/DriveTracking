@@ -17,6 +17,9 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 /**
+ * Created by ProgrammingKnowledge on 1/5/2016.
+ * http://www.codebind.com/android-tutorials-and-examples/android-mysql-database-tutorial-android-login-php-mysql/
+ * Modified by Cristian-Florin Rotaru 2018
  * Works in background, it sends into database the information about going over
  * the speed limit
  * Connects to database using SpeedLimitLog.php located on
