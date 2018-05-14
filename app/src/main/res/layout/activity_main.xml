@@ -28,42 +28,72 @@
             android:layout_width="match_parent"
             android:layout_height="70dp"
             android:text="@+id/userTxtView"
-            android:textSize="25dp" />
+            android:textSize="20dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
 
         <TextView
             android:id="@+id/speedTxtView"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="50dp"
             android:text="@+id/speedTxtView"
-            android:textSize="25dp" />
+            android:textSize="20dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
 
         <TextView
             android:id="@+id/latTxtView"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="50dp"
             android:text="@+id/latTxtView"
-            android:textSize="25dp" />
+            android:textSize="20dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
 
         <TextView
             android:id="@+id/longTxtView"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="50dp"
             android:text="@+id/longTxtView"
-            android:textSize="25dp" />
+            android:textSize="20dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
 
         <TextView
             android:id="@+id/spdLimitTxtView"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="50dp"
             android:text="@+id/spdLimitTxtView"
-            android:textSize="25dp" />
+            android:textSize="20dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
 
         <TextView
             android:id="@+id/lastSpdTxtView"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="50dp"
             android:text="@+id/lastSpdTxtView"
-            android:textSize="25dp" />
+            android:textSize="20dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
 
 
     </LinearLayout>
